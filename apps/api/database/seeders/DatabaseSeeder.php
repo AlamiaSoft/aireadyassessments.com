@@ -16,6 +16,10 @@ class DatabaseSeeder extends Seeder
         $name = (string) env('INITIAL_ADMIN_NAME', 'AIReadyAssessment Admin');
 
         if ($email === '' && $password === '') {
+            if (app()->environment('production')) {
+                throw new RuntimeException('Set INITIAL_ADMIN_EMAIL and INITIAL_ADMIN_PASSWORD in the Portainer stack environment.');
+            }
+
             return;
         }
 
