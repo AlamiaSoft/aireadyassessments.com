@@ -10,7 +10,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   packages: write
 
 jobs:
@@ -19,6 +19,34 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Set up PHP for Composer dependency locking
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: curl, dom, intl, mbstring, pcntl, pdo_pgsql, simplexml, xml, xmlreader, xmlwriter, zip
+          tools: composer:v2
+
+      - name: Generate and commit the initial Composer lock file
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ ! -f apps/api/composer.lock ]; then
+            mkdir -p apps/api/bootstrap/cache
+            composer update --working-dir=apps/api --no-interaction --prefer-dist --no-progress
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add apps/api/composer.lock
+            git commit -m "build(deps): lock Laravel API dependencies"
+            git push origin "HEAD:${GITHUB_REF_NAME}"
+          else
+            composer validate --working-dir=apps/api --strict
+          fi
+
+      - name: Record exact source revision for the image tag
+        id: source-revision
+        shell: bash
+        run: echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -36,7 +64,7 @@ jobs:
         with:
           images: ghcr.io/alamiasoft/aireadyassessment-api
           tags: |
-            type=sha,prefix=sha-
+            type=raw,value=sha-${{ steps.source-revision.outputs.sha }}
             type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: Build and publish
