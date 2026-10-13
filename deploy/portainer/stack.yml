@@ -126,4 +126,4 @@ networks:
   proxy:
     # Must already exist and be shared with the Cloudflare Tunnel/reverse proxy.
     external: true
-    name: ${PROXY_NETWORK:-proxy}
+    name: ${PROXY_NETWORK:-alamia-network}
