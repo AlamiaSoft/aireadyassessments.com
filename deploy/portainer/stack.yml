@@ -1,15 +1,72 @@
 # Portainer Git-backed Compose stack.
-# The API image is built on the Oracle VPS; no GHCR login or image publishing is required.
-# Portainer Stack -> Environment variables should load the completed .env template.
+# Builds the Laravel image locally on the Portainer Docker endpoint; no registry is used.
+# Portainer Stack -> Environment variables are passed through explicitly below.
+x-app-environment: &app-environment
+  APP_NAME: ${APP_NAME:-AIReadyAssessment}
+  APP_ENV: ${APP_ENV:-production}
+  APP_KEY: ${APP_KEY:-}
+  APP_DEBUG: ${APP_DEBUG:-false}
+  APP_URL: ${APP_URL:-https://app.aireadyassessment.com}
+  APP_TIMEZONE: ${APP_TIMEZONE:-UTC}
+  APP_LOCALE: ${APP_LOCALE:-en}
+  APP_FALLBACK_LOCALE: ${APP_FALLBACK_LOCALE:-en}
+  LOG_CHANNEL: ${LOG_CHANNEL:-stderr}
+  LOG_LEVEL: ${LOG_LEVEL:-info}
+  LOG_STACK: ${LOG_STACK:-stderr}
+  DB_CONNECTION: ${DB_CONNECTION:-pgsql}
+  DB_HOST: ${DB_HOST:-postgres}
+  DB_PORT: ${DB_PORT:-5432}
+  DB_DATABASE: ${DB_DATABASE:-aireadyassessment}
+  DB_USERNAME: ${DB_USERNAME:-aireadyassessment}
+  DB_PASSWORD: ${DB_PASSWORD:-}
+  SESSION_DRIVER: ${SESSION_DRIVER:-redis}
+  SESSION_LIFETIME: ${SESSION_LIFETIME:-120}
+  SESSION_ENCRYPT: ${SESSION_ENCRYPT:-true}
+  SESSION_SECURE_COOKIE: ${SESSION_SECURE_COOKIE:-true}
+  CACHE_STORE: ${CACHE_STORE:-redis}
+  QUEUE_CONNECTION: ${QUEUE_CONNECTION:-redis}
+  REDIS_CLIENT: ${REDIS_CLIENT:-phpredis}
+  REDIS_HOST: ${REDIS_HOST:-redis}
+  REDIS_PORT: ${REDIS_PORT:-6379}
+  REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+  FILESYSTEM_DISK: ${FILESYSTEM_DISK:-local}
+  FRONTEND_URL: ${FRONTEND_URL:-https://aireadyassessment.com}
+  CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-https://aireadyassessment.com}
+  AI_CHAT_COMPLETIONS_URL: ${AI_CHAT_COMPLETIONS_URL:-}
+  AI_API_KEY: ${AI_API_KEY:-}
+  AI_MODEL: ${AI_MODEL:-}
+  AI_PROVIDER_LABEL: ${AI_PROVIDER_LABEL:-cloudflare-ai-gateway}
+  AI_FALLBACK_CHAT_COMPLETIONS_URL: ${AI_FALLBACK_CHAT_COMPLETIONS_URL:-}
+  AI_FALLBACK_API_KEY: ${AI_FALLBACK_API_KEY:-}
+  AI_FALLBACK_MODEL: ${AI_FALLBACK_MODEL:-}
+  AI_FALLBACK_PROVIDER: ${AI_FALLBACK_PROVIDER:-fallback-provider}
+  AI_INPUT_PRICE_PER_MILLION_USD: ${AI_INPUT_PRICE_PER_MILLION_USD:-}
+  AI_OUTPUT_PRICE_PER_MILLION_USD: ${AI_OUTPUT_PRICE_PER_MILLION_USD:-}
+  AI_FALLBACK_INPUT_PRICE_PER_MILLION_USD: ${AI_FALLBACK_INPUT_PRICE_PER_MILLION_USD:-}
+  AI_FALLBACK_OUTPUT_PRICE_PER_MILLION_USD: ${AI_FALLBACK_OUTPUT_PRICE_PER_MILLION_USD:-}
+  AI_TIMEOUT_SECONDS: ${AI_TIMEOUT_SECONDS:-60}
+  AI_MAX_OUTPUT_TOKENS: ${AI_MAX_OUTPUT_TOKENS:-1800}
+  AI_DAILY_SPEND_LIMIT_USD: ${AI_DAILY_SPEND_LIMIT_USD:-5.00}
+  AI_ENFORCE_SPEND_LIMIT: ${AI_ENFORCE_SPEND_LIMIT:-true}
+  ASSESSMENT_MAX_UPLOAD_KB: ${ASSESSMENT_MAX_UPLOAD_KB:-10240}
+  ASSESSMENT_MAX_TEXT_CHARS: ${ASSESSMENT_MAX_TEXT_CHARS:-30000}
+  ASSESSMENT_MIN_JOB_DESCRIPTION_CHARS: ${ASSESSMENT_MIN_JOB_DESCRIPTION_CHARS:-80}
+  ASSESSMENT_STATUS_TOKEN_TTL_DAYS: ${ASSESSMENT_STATUS_TOKEN_TTL_DAYS:-7}
+  DOCUMENT_RETENTION_DAYS: ${DOCUMENT_RETENTION_DAYS:-30}
+  INITIAL_ADMIN_NAME: ${INITIAL_ADMIN_NAME:-AIReadyAssessment Admin}
+  INITIAL_ADMIN_EMAIL: ${INITIAL_ADMIN_EMAIL:-admin@aireadyassessment.com}
+  INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:-}
+  MCP_ENABLED: ${MCP_ENABLED:-false}
+  MCP_BEARER_TOKEN: ${MCP_BEARER_TOKEN:-}
+
 services:
   api:
-    image: ${API_IMAGE:-aireadyassessment-api:local}
+    image: aireadyassessment-api:local
     build:
       context: ../..
       dockerfile: apps/api/Dockerfile
     restart: unless-stopped
-    env_file:
-      - stack.env
+    environment: *app-environment
     depends_on:
       setup:
         condition: service_completed_successfully
@@ -32,10 +89,9 @@ services:
       start_period: 30s
 
   setup:
-    image: ${API_IMAGE:-aireadyassessment-api:local}
+    image: aireadyassessment-api:local
     restart: "no"
-    env_file:
-      - stack.env
+    environment: *app-environment
     depends_on:
       postgres:
         condition: service_healthy
@@ -46,10 +102,9 @@ services:
     command: ["/usr/local/bin/alamia-setup"]
 
   worker:
-    image: ${API_IMAGE:-aireadyassessment-api:local}
+    image: aireadyassessment-api:local
     restart: unless-stopped
-    env_file:
-      - stack.env
+    environment: *app-environment
     depends_on:
       setup:
         condition: service_completed_successfully
@@ -63,10 +118,9 @@ services:
     command: ["frankenphp", "php-cli", "artisan", "queue:work", "redis", "--sleep=3", "--tries=3", "--timeout=120", "--max-time=3600"]
 
   scheduler:
-    image: ${API_IMAGE:-aireadyassessment-api:local}
+    image: aireadyassessment-api:local
     restart: unless-stopped
-    env_file:
-      - stack.env
+    environment: *app-environment
     depends_on:
       setup:
         condition: service_completed_successfully
@@ -119,10 +173,8 @@ volumes:
   app_storage:
 
 networks:
-  # Allows outbound AI provider calls. No database or Redis ports are published.
   backend:
     driver: bridge
   proxy:
-    # Must already exist and be shared with the Cloudflare Tunnel/reverse proxy.
     external: true
     name: ${PROXY_NETWORK:-alamia-network}
