@@ -24,7 +24,7 @@ class DiagnosticsToolsTest extends TestCase
             'source_file_name' => 'cv.pdf',
             'source_file_sha256' => hash('sha256', 'cv'),
             'public_token_hash' => hash('sha256', 'token'),
-            'request_id' => 'req-safe-123',
+            'request_id' => 'd4c3b2a1-1111-4222-8333-123456789abc',
             'status' => 'queued',
             'report' => ['private' => 'report content'],
         ]);
@@ -32,11 +32,11 @@ class DiagnosticsToolsTest extends TestCase
         $request = new Request(['id' => $assessment->id]);
         $response = app(AssessmentInspectTool::class)->handle($request);
 
-        $encoded = json_encode($response);
+        $encoded = json_encode($response->getStructuredContent());
         $this->assertIsString($encoded);
         $this->assertStringNotContainsString('candidate@example.test', $encoded);
         $this->assertStringNotContainsString('Sensitive job description', $encoded);
         $this->assertStringNotContainsString('report content', $encoded);
-        $this->assertStringContainsString('req-safe-123', $encoded);
+        $this->assertStringContainsString('d4c3b2a1-1111-4222-8333-123456789abc', $encoded);
     }
 }
