@@ -40,5 +40,19 @@ jobs:
           test -f .env.example
           test -f apps/api/.env.example
 
+      - name: Validate Portainer Compose configuration
+        shell: bash
+        env:
+          API_IMAGE: ghcr.io/alamiasoft/aireadyassessment-api:ci
+          POSTGRES_PASSWORD: ci-postgres-password
+          REDIS_PASSWORD: ci-redis-password
+          PROXY_NETWORK: proxy
+        run: |
+          set -euo pipefail
+          sudo mkdir -p /opt/aireadyassessment
+          sudo cp deploy/portainer/.env.production.example /opt/aireadyassessment/.env
+          sudo chmod 600 /opt/aireadyassessment/.env
+          docker compose -f deploy/portainer/stack.yml config --quiet
+
       - name: Check whitespace errors
         run: git diff --check
