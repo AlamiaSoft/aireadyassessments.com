@@ -1,0 +1,48 @@
+name: Refresh Composer lock for MCP foundation
+
+on:
+  push:
+    branches: [feat/runtime-mcp-diagnostics]
+    paths:
+      - "apps/api/composer.json"
+
+permissions:
+  contents: write
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout feature branch
+        uses: actions/checkout@v4
+        with:
+          ref: feat/runtime-mcp-diagnostics
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up PHP and Composer
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          tools: composer:v2
+          coverage: none
+
+      - name: Resolve the pinned MCP and Boost dependency graph
+        working-directory: apps/api
+        run: |
+          mkdir -p bootstrap/cache storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs storage/app/private
+          composer update laravel/mcp laravel/boost --with-all-dependencies --no-interaction --prefer-dist
+
+      - name: Commit updated lock file
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- apps/api/composer.lock; then
+            echo "Composer lock is already current."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add apps/api/composer.lock
+          git commit -m "chore: lock Laravel MCP and Boost dependencies"
+          git fetch origin feat/runtime-mcp-diagnostics
+          git rebase origin/feat/runtime-mcp-diagnostics
+          git push origin feat/runtime-mcp-diagnostics
