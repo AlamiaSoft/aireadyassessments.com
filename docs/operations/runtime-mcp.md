@@ -7,7 +7,7 @@ AIReadyAssessment includes an opt-in, authenticated Model Context Protocol (MCP)
 - Endpoint path: `/mcp/diagnostics` (POST; MCP Streamable HTTP handled by Laravel MCP).
 - Disabled by default: `MCP_ENABLED=false`.
 - Authentication: static bearer token from `MCP_BEARER_TOKEN`; token must be at least 32 characters.
-- Rate limit: 30 requests/minute per source IP + bearer-token fingerprint.
+- Rate limit: 30 requests/minute per source IP (including unauthenticated attempts).
 - The endpoint is registered only when MCP is enabled. If enabled without a valid token, middleware fails closed.
 - Keep the app behind Cloudflare Tunnel/reverse proxy and add Cloudflare Access or an equivalent network access policy before enabling remote use. Authentication is required regardless.
 
