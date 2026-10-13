@@ -6,6 +6,8 @@ Career-readiness assessment and job-application improvement platform.
 
 ## Current architecture
 
+- **Agent tooling:** Laravel Boost for local development agents; an opt-in authenticated Laravel MCP endpoint for read-only runtime diagnostics. See [runtime MCP operations](docs/operations/runtime-mcp.md).
+
 - **Public frontend:** static site deployed to Cloudflare Pages from GitHub.
 - **Application/API:** Laravel on the existing Oracle Always Free VPS.
 - **Admin:** Filament inside the Laravel application.
