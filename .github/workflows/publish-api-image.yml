@@ -13,6 +13,10 @@ permissions:
   contents: write
   packages: write
 
+concurrency:
+  group: publish-api-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   publish:
     runs-on: ubuntu-latest
