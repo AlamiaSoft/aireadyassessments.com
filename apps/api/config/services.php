@@ -14,6 +14,11 @@ return [
     |
     */
 
+    'mcp' => [
+        'enabled' => (bool) env('MCP_ENABLED', false),
+        'token' => env('MCP_BEARER_TOKEN', ''),
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],

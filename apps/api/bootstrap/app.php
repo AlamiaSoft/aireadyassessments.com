@@ -12,6 +12,13 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__.'/../routes/api.php',
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
+        then: function (): void {
+            $aiRoutes = base_path('routes/ai.php');
+
+            if (is_file($aiRoutes)) {
+                require $aiRoutes;
+            }
+        },
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->append(AssignRequestId::class);

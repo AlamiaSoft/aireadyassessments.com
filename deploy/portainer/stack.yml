@@ -17,6 +17,7 @@ services:
         condition: service_healthy
     volumes:
       - app_storage:/app/storage
+      - app_key:/run/app-key:ro
     networks:
       - backend
       - proxy
@@ -40,14 +41,9 @@ services:
         condition: service_healthy
     networks:
       - backend
-    command:
-      - sh
-      - -lc
-      - |
-        set -eu
-        test -n "$$APP_KEY" || { echo "APP_KEY is required; set it in Portainer."; exit 1; }
-        frankenphp php-cli artisan migrate --force
-        frankenphp php-cli artisan db:seed --force
+    volumes:
+      - app_key:/run/app-key
+    command: ["/usr/local/bin/alamia-setup"]
 
   worker:
     image: ${API_IMAGE:-aireadyassessment-api:local}
@@ -61,6 +57,7 @@ services:
         condition: service_healthy
     volumes:
       - app_storage:/app/storage
+      - app_key:/run/app-key:ro
     networks:
       - backend
     command: ["frankenphp", "php-cli", "artisan", "queue:work", "redis", "--sleep=3", "--tries=3", "--timeout=120", "--max-time=3600"]
@@ -77,6 +74,7 @@ services:
         condition: service_healthy
     volumes:
       - app_storage:/app/storage
+      - app_key:/run/app-key:ro
     networks:
       - backend
     command: ["sh", "-lc", "while :; do frankenphp php-cli artisan schedule:run --no-interaction; sleep 60; done"]
@@ -115,6 +113,7 @@ services:
       retries: 10
 
 volumes:
+  app_key:
   postgres_data:
   redis_data:
   app_storage:

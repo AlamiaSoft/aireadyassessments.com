@@ -57,3 +57,30 @@ jobs:
 
       - name: Check whitespace errors
         run: git diff --check
+
+  api-tests:
+    name: Laravel API tests
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/api
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: dom, mbstring, zip, intl, pdo_sqlite, sqlite3
+          tools: composer:v2
+          coverage: none
+
+      - name: Prepare writable Laravel paths
+        run: mkdir -p bootstrap/cache storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs storage/app/private
+
+      - name: Install locked dependencies
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Run feature tests
+        run: php artisan test
