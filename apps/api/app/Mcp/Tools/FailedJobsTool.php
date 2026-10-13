@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
+use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
@@ -17,7 +18,7 @@ use Laravel\Mcp\Server\Tool;
 #[Description('Returns failed-job count and a small list of safe metadata only. Does not expose job payloads, exception traces, or user data.')]
 class FailedJobsTool extends Tool
 {
-    public function handle(Request $request): Response
+    public function handle(Request $request): ResponseFactory
     {
         $validated = $request->validate([
             'limit' => ['sometimes', 'integer', 'min:1', 'max:10'],
