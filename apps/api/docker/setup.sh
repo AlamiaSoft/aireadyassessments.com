@@ -20,7 +20,7 @@ else
         # If migrations already ran, a missing key volume may mean the original
         # key was lost. Never silently generate a replacement for an existing app.
         migration_status="$(frankenphp php-cli artisan migrate:status --no-interaction 2>/dev/null || true)"
-        if printf '%s\n' "$migration_status" | grep -Eq '(^|[[:space:]])Yes([[:space:]]|$)'; then
+        if printf '%s\n' "$migration_status" | grep -q 'Ran'; then
             echo "The database already has applied migrations but the persistent APP_KEY is missing. Restore the app_key volume or configure the original APP_KEY in Portainer; refusing to generate a replacement." >&2
             exit 1
         fi
