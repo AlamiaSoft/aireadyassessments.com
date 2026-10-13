@@ -2,7 +2,7 @@
   "$schema": "https://getcomposer.org/schema.json",
   "name": "alamiasoft/aireadyassessment",
   "type": "project",
-  "description": "AIReadyAssessment API with secure runtime MCP diagnostics",
+  "description": "AIReadyAssessment API with secure, read-only runtime MCP diagnostics",
   "license": "proprietary",
   "require": {
     "php": "^8.3",
