@@ -1,39 +1,22 @@
-# Portainer standalone Docker Compose stack.
-# API image is built and published by .github/workflows/publish-api-image.yml.
-# Keep passwords in Portainer stack environment variables; keep AI/API secrets in
-# stack.env on the Docker host (chmod 600).
+# Portainer Git-backed Compose stack.
+# The API image is built on the Oracle VPS; no GHCR login or image publishing is required.
+# Portainer Stack -> Environment variables should load the completed .env template.
 services:
   api:
-    image: ${API_IMAGE:?Set API_IMAGE to ghcr.io/alamiasoft/aireadyassessment-api:latest}
+    image: ${API_IMAGE:-aireadyassessment-api:local}
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
     restart: unless-stopped
     env_file:
       - stack.env
-    environment:
-      APP_ENV: production
-      APP_DEBUG: "false"
-      LOG_CHANNEL: stderr
-      DB_CONNECTION: pgsql
-      DB_HOST: postgres
-      DB_PORT: "5432"
-      DB_DATABASE: ${POSTGRES_DB:-aireadyassessment}
-      DB_USERNAME: ${POSTGRES_USER:-aireadyassessment}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in Portainer}
-      CACHE_STORE: redis
-      SESSION_DRIVER: redis
-      QUEUE_CONNECTION: redis
-      REDIS_CLIENT: phpredis
-      REDIS_HOST: redis
-      REDIS_PORT: "6379"
-      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD in Portainer}
-      FILESYSTEM_DISK: local
-      SESSION_SECURE_COOKIE: "true"
-    volumes:
-      - app_storage:/var/www/html/storage
     depends_on:
-      postgres:
-        condition: service_healthy
+      setup:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
+    volumes:
+      - app_storage:/var/www/html/storage
     networks:
       - backend
       - proxy
@@ -47,70 +30,53 @@ services:
       retries: 3
       start_period: 30s
 
-  worker:
-    image: ${API_IMAGE:?Set API_IMAGE to ghcr.io/alamiasoft/aireadyassessment-api:latest}
-    restart: unless-stopped
+  setup:
+    image: ${API_IMAGE:-aireadyassessment-api:local}
+    restart: "no"
     env_file:
       - stack.env
-    environment:
-      APP_ENV: production
-      APP_DEBUG: "false"
-      LOG_CHANNEL: stderr
-      DB_CONNECTION: pgsql
-      DB_HOST: postgres
-      DB_PORT: "5432"
-      DB_DATABASE: ${POSTGRES_DB:-aireadyassessment}
-      DB_USERNAME: ${POSTGRES_USER:-aireadyassessment}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in Portainer}
-      CACHE_STORE: redis
-      SESSION_DRIVER: redis
-      QUEUE_CONNECTION: redis
-      REDIS_CLIENT: phpredis
-      REDIS_HOST: redis
-      REDIS_PORT: "6379"
-      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD in Portainer}
-      FILESYSTEM_DISK: local
-    volumes:
-      - app_storage:/var/www/html/storage
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - backend
+    command:
+      - sh
+      - -lc
+      - |
+        set -eu
+        test -n "$$APP_KEY" || { echo "APP_KEY is required; set it in Portainer."; exit 1; }
+        php artisan migrate --force
+        php artisan db:seed --force
+
+  worker:
+    image: ${API_IMAGE:-aireadyassessment-api:local}
+    restart: unless-stopped
+    env_file:
+      - stack.env
+    depends_on:
+      setup:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
+    volumes:
+      - app_storage:/var/www/html/storage
     networks:
       - backend
     command: ["php", "artisan", "queue:work", "redis", "--sleep=3", "--tries=3", "--timeout=120", "--max-time=3600"]
 
   scheduler:
-    image: ${API_IMAGE:?Set API_IMAGE to ghcr.io/alamiasoft/aireadyassessment-api:latest}
+    image: ${API_IMAGE:-aireadyassessment-api:local}
     restart: unless-stopped
     env_file:
       - stack.env
-    environment:
-      APP_ENV: production
-      APP_DEBUG: "false"
-      LOG_CHANNEL: stderr
-      DB_CONNECTION: pgsql
-      DB_HOST: postgres
-      DB_PORT: "5432"
-      DB_DATABASE: ${POSTGRES_DB:-aireadyassessment}
-      DB_USERNAME: ${POSTGRES_USER:-aireadyassessment}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in Portainer}
-      CACHE_STORE: redis
-      SESSION_DRIVER: redis
-      QUEUE_CONNECTION: redis
-      REDIS_CLIENT: phpredis
-      REDIS_HOST: redis
-      REDIS_PORT: "6379"
-      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD in Portainer}
-      FILESYSTEM_DISK: local
-    volumes:
-      - app_storage:/var/www/html/storage
     depends_on:
-      postgres:
-        condition: service_healthy
+      setup:
+        condition: service_completed_successfully
       redis:
         condition: service_healthy
+    volumes:
+      - app_storage:/var/www/html/storage
     networks:
       - backend
     command: ["sh", "-lc", "while :; do php artisan schedule:run --no-interaction; sleep 60; done"]
@@ -152,14 +118,12 @@ volumes:
   postgres_data:
   redis_data:
   app_storage:
-  app_bootstrap_cache:
 
 networks:
-  # Non-internal so app/queue can make outbound requests to the configured AI APIs.
-  # No ports are published for PostgreSQL or Redis.
+  # Allows outbound AI provider calls. No database or Redis ports are published.
   backend:
     driver: bridge
   proxy:
-    # Create this network in Portainer first; attach the Cloudflare Tunnel/reverse proxy.
+    # Must already exist and be shared with the Cloudflare Tunnel/reverse proxy.
     external: true
     name: ${PROXY_NETWORK:-proxy}
