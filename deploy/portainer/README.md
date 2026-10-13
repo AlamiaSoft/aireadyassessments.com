@@ -7,7 +7,7 @@ The stack runs the API, a one-shot setup/migration service, a queue worker, a sc
 ## One-time preparation
 
 - Ensure Portainer's endpoint is the local Docker environment on this same VPS. Portainer documents a limitation with Compose `build:` for remote Docker endpoints; if this stack targets a remote Agent endpoint, use a host-side build script instead.
-- Ensure the external Docker network exists and is shared with your Cloudflare Tunnel/reverse proxy. The default is `alamia-network`; set `PROXY_NETWORK` to the actual network name if different.
+- Ensure the external Docker network exists and is shared with your Cloudflare Tunnel/reverse proxy. The default is `alamia-network`; set `PROXY_NETWORK` to the actual network name if different. The API has the unique Docker DNS alias `aireadyassessment-api` on that network to avoid collisions with other stacks' generic `api` services.
 - In Portainer, choose **Stacks → Add stack → Repository**. Set repository to `https://github.com/AlamiaSoft/aireadyassessments.com.git`, branch to `main`, and Compose path to `deploy/portainer/stack.yml`.
 - Add the variables from `.env.production.example` in Portainer's **Environment variables** panel (key/value entries), or use Portainer's supported **Load variables from .env file** control if available. Do not create a server-side `stack.env`: this Compose file intentionally does not use `env_file`; it passes variables from Portainer into each application container explicitly.
 - Set strong unique PostgreSQL and Redis passwords. Keep `POSTGRES_PASSWORD` equal to `DB_PASSWORD`, and `REDIS_PASSWORD` consistent for both the Redis service and Laravel. Do not commit production secrets.
@@ -21,6 +21,19 @@ The stack runs the API, a one-shot setup/migration service, a queue worker, a sc
 2. Deploy the stack. The API service's `build:` configuration builds `aireadyassessment-api:local` locally; setup waits for PostgreSQL, runs migrations and provisions the configured admin before API/worker/scheduler start.
 3. Inspect the `setup` container logs. If migrations or admin provisioning fail, fix the error and redeploy.
 4. Verify the API health endpoint through the private origin before routing public traffic.
+
+## Cloudflare routing and ports
+
+The intended hostnames are:
+
+- **Frontend:** `https://aireadyassessment.com` — Cloudflare Pages project/custom domain.
+- **API:** `https://app.aireadyassessment.com` — Cloudflare Tunnel public hostname, routed to the private Docker origin `http://aireadyassessment-api:8000`.
+
+For the Tunnel hostname, set the service/origin URL to `http://aireadyassessment-api:8000`. The Tunnel connector must be attached to the same external Docker network configured by `PROXY_NETWORK` (default `alamia-network`). Do not route this hostname to `localhost:8000` inside the Tunnel container, and do not expose/publish port 8000 on the VPS host for this shared-network setup.
+
+Port `8000` is the fixed internal FrankenPHP/Caddy listener in `apps/api/Caddyfile`; it is intentionally not a configurable environment variable. `APP_URL`, `FRONTEND_URL`, and `CORS_ALLOWED_ORIGINS` are application URL settings, not network listener ports. The Compose service uses `expose: 8000` for container-network communication only.
+
+If you instead run cloudflared directly on the VPS host rather than as a container on the shared Docker network, the origin routing differs; do not use the Docker alias from a host process.
 
 ## Database and admin safety
 
