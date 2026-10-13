@@ -51,7 +51,8 @@ jobs:
           set -euo pipefail
           sudo mkdir -p /opt/aireadyassessment
           sudo cp deploy/portainer/.env.production.example /opt/aireadyassessment/.env
-          sudo chmod 600 /opt/aireadyassessment/.env
+          sudo chown "$(id -u):$(id -g)" /opt/aireadyassessment/.env
+          chmod 600 /opt/aireadyassessment/.env
           docker compose -f deploy/portainer/stack.yml config --quiet
 
       - name: Check whitespace errors
