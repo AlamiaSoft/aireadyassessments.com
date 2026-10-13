@@ -49,11 +49,10 @@ jobs:
           PROXY_NETWORK: proxy
         run: |
           set -euo pipefail
-          sudo mkdir -p /opt/aireadyassessment
-          sudo cp deploy/portainer/.env.production.example /opt/aireadyassessment/.env
-          sudo chown "$(id -u):$(id -g)" /opt/aireadyassessment/.env
-          chmod 600 /opt/aireadyassessment/.env
+          cp deploy/portainer/.env.production.example deploy/portainer/stack.env
+          chmod 600 deploy/portainer/stack.env
           docker compose -f deploy/portainer/stack.yml config --quiet
+          rm -f deploy/portainer/stack.env
 
       - name: Check whitespace errors
         run: git diff --check
