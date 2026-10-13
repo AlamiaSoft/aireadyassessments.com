@@ -6,6 +6,8 @@ This product processes CVs and job descriptions, which may include contact detai
 
 - HTTPS everywhere; keep backend behind the existing Cloudflare Tunnel or a hardened TLS reverse proxy.
 - Secret values live in server environment/secret management only. Commit `.env.example`, never `.env`.
+- Runtime MCP is disabled by default. When enabled, require a high-entropy bearer token and network access controls (Cloudflare Access/private access); expose only allowlisted read-only tools and never arbitrary SQL/Tinker/Artisan execution. See [runtime MCP operations](runtime-mcp.md).
+- Laravel `APP_KEY` is generated once on first deployment and persisted in a dedicated Docker volume; normal redeployments must reuse it. Never silently regenerate it or include it in logs.
 - Validate upload size, detected file type and content; store with randomized names outside public webroot; block executable content.
 - Authorize each read/download against the owning user/order; use expiring signed download URLs or controller-mediated streaming.
 - Define retention and deletion rules for source files, outputs and derived text; provide a user-visible deletion path.
