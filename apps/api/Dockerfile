@@ -20,14 +20,18 @@ COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /app
 
 COPY apps/api/ ./
-RUN mkdir -p bootstrap/cache storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs storage/app/private /config/caddy /data/caddy \
+RUN mkdir -p bootstrap/cache storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs storage/app/private /config/caddy /data/caddy /run/app-key \
     && composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader \
     && cp "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini" \
-    && chown -R www-data:www-data storage bootstrap/cache /config /data \
-    && chmod -R ug+rwX storage bootstrap/cache /config /data
+    && chown -R www-data:www-data storage bootstrap/cache /config /data /run/app-key \
+    && chmod -R ug+rwX storage bootstrap/cache /config /data /run/app-key
 
 COPY --chown=root:root apps/api/Caddyfile /etc/caddy/Caddyfile
+COPY --chown=root:root apps/api/docker/entrypoint.sh /usr/local/bin/docker-entrypoint
+COPY --chown=root:root apps/api/docker/setup.sh /usr/local/bin/alamia-setup
+RUN chmod 0555 /usr/local/bin/docker-entrypoint /usr/local/bin/alamia-setup
 
 USER www-data
 EXPOSE 8000
-CMD ["--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
+CMD ["frankenphp", "run", "--config", "/etc/caddy/Caddyfile", "--adapter", "caddyfile"]
