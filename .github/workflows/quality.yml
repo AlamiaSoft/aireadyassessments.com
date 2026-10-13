@@ -21,7 +21,25 @@ jobs:
       - name: Ensure no accidental environment file is tracked
         shell: bash
         run: |
-          if git ls-files | grep -E '(^|/)\.env($|\.)' | grep -v '^\.env\.example$'; then
+          if git ls-files | grep -E '(^|/)\.env($|\.)' | grep -vE '(^|/)\.env\.example; then
+            echo "A real environment file appears to be tracked."
+            exit 1
+          fi
+
+      - name: Verify core project documents exist
+        shell: bash
+        run: |
+          test -f README.md
+          test -f docs/architecture/decisions.md
+          test -f docs/oss/component-audit.md
+          test -f docs/operations/observability.md
+          test -f docs/operations/security-privacy.md
+          test -f docs/plan/delivery-plan.md
+          test -f .env.example
+
+      - name: Check whitespace errors
+        run: git diff --check
+; then
             echo "A real environment file appears to be tracked."
             exit 1
           fi
