@@ -52,10 +52,8 @@ jobs:
           cp deploy/portainer/.env.production.example deploy/portainer/stack.env
           chmod 600 deploy/portainer/stack.env
           docker compose -f deploy/portainer/stack.yml config --quiet
+          docker compose -f deploy/portainer/stack.yml build api
           rm -f deploy/portainer/stack.env
-
-      - name: Build API image without publishing
-        run: docker build -f apps/api/Dockerfile -t aireadyassessment-api:ci .
 
       - name: Check whitespace errors
         run: git diff --check
