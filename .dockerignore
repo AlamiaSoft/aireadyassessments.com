@@ -22,3 +22,6 @@ node_modules
 
 # Composer-generated Laravel package manifests are regenerated inside the image.
 **/bootstrap/cache/*
+
+# Portainer-generated production environment file must never enter build context.
+**/stack.env
