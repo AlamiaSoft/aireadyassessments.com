@@ -28,7 +28,9 @@ jobs:
 
       - name: Resolve the pinned MCP and Boost dependency graph
         working-directory: apps/api
-        run: composer update laravel/mcp laravel/boost --with-all-dependencies --no-interaction --prefer-dist
+        run: |
+          mkdir -p bootstrap/cache storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs storage/app/private
+          composer update laravel/mcp laravel/boost --with-all-dependencies --no-interaction --prefer-dist
 
       - name: Commit updated lock file
         run: |
