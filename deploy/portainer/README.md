@@ -30,4 +30,4 @@ The stack runs the API, a one-shot setup/migration service, a queue worker, a sc
 
 ## Before accepting real CVs
 
-Verify private document storage and retention cleanup, AI provider fallback and budget limits, monitoring/logging, automated database backups and a successful restore test. The current HTTP process uses Laravel's built-in server for initial smoke testing; replace it with a hardened production HTTP runtime before significant public traffic.
+Verify private document storage and retention cleanup, AI provider fallback and budget limits, monitoring/logging, automated database backups and a successful restore test. The API uses the official FrankenPHP/Caddy runtime in classic request mode, with security headers and structured stdout logs. Laravel Octane is deliberately not enabled yet: this workload moves AI processing to Redis-backed jobs, so Octane should be added after request-level benchmarks and tests for long-lived worker safety demonstrate a real benefit.
