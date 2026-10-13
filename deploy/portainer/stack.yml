@@ -16,7 +16,7 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - app_storage:/var/www/html/storage
+      - app_storage:/app/storage
     networks:
       - backend
       - proxy
@@ -60,7 +60,7 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - app_storage:/var/www/html/storage
+      - app_storage:/app/storage
     networks:
       - backend
     command: ["frankenphp", "php-cli", "artisan", "queue:work", "redis", "--sleep=3", "--tries=3", "--timeout=120", "--max-time=3600"]
@@ -76,7 +76,7 @@ services:
       redis:
         condition: service_healthy
     volumes:
-      - app_storage:/var/www/html/storage
+      - app_storage:/app/storage
     networks:
       - backend
     command: ["sh", "-lc", "while :; do frankenphp php-cli artisan schedule:run --no-interaction; sleep 60; done"]
