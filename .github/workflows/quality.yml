@@ -18,10 +18,15 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Ensure no accidental environment file is tracked
+      - name: Ensure no real environment files are tracked
         shell: bash
         run: |
-          if git ls-files | grep -E '(^|/)\.env($|\.)' | grep -vE '(^|/)\.env\.example; then
+          set -euo pipefail
+          if git ls-files --error-unmatch '.env' >/dev/null 2>&1; then
+            echo "A root .env file is tracked."
+            exit 1
+          fi
+          if git ls-files | grep -E '(^|/)\.env$'; then
             echo "A real environment file appears to be tracked."
             exit 1
           fi
@@ -29,6 +34,7 @@ jobs:
       - name: Verify core project documents exist
         shell: bash
         run: |
+          set -euo pipefail
           test -f README.md
           test -f docs/architecture/decisions.md
           test -f docs/oss/component-audit.md
@@ -36,24 +42,7 @@ jobs:
           test -f docs/operations/security-privacy.md
           test -f docs/plan/delivery-plan.md
           test -f .env.example
-
-      - name: Check whitespace errors
-        run: git diff --check
-; then
-            echo "A real environment file appears to be tracked."
-            exit 1
-          fi
-
-      - name: Verify core project documents exist
-        shell: bash
-        run: |
-          test -f README.md
-          test -f docs/architecture/decisions.md
-          test -f docs/oss/component-audit.md
-          test -f docs/operations/observability.md
-          test -f docs/operations/security-privacy.md
-          test -f docs/plan/delivery-plan.md
-          test -f .env.example
+          test -f apps/api/.env.example
 
       - name: Check whitespace errors
         run: git diff --check
