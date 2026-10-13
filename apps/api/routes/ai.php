@@ -10,4 +10,4 @@ if (! config('services.mcp.enabled')) {
 }
 
 Mcp::web('/mcp/diagnostics', DiagnosticsServer::class)
-    ->middleware([EnsureMcpBearerToken::class, 'throttle:mcp']);
+    ->middleware(['throttle:mcp', EnsureMcpBearerToken::class]);
