@@ -4,12 +4,12 @@ This stack runs the Laravel API, one queue worker, one Laravel scheduler, Postgr
 
 ## Prerequisites
 
-- Replace `API_IMAGE` with an image published from this repo, tagged immutably (for example `ghcr.io/alamiasoft/aireadyassessment-api:sha-<commit>`). The Dockerfile/build workflow still needs to be added before the stack can start.
+- The image is published to GHCR by `.github/workflows/publish-api-image.yml` after API/Dockerfile changes on `main`. Use `ghcr.io/alamiasoft/aireadyassessment-api:latest` initially; for repeatable rollbacks, use the immutable `sha-<commit>` tag from the workflow run.
 - Create `/opt/aireadyassessment/.env` on the VPS with production app/provider settings. Do not commit it. Set strict file permissions (`chmod 600`).
 - Create strong `POSTGRES_PASSWORD` and `REDIS_PASSWORD` values in Portainer stack environment variables. Keep them out of tracked YAML.
 - `APP_KEY` must be generated once for this environment and kept stable. Generate with `php artisan key:generate --show` using the project image.
 - Set `APP_URL`, `FRONTEND_URL`, and `CORS_ALLOWED_ORIGINS` to the real HTTPS API and Cloudflare Pages origins.
-- Create the external Docker network used by your Cloudflare Tunnel/reverse proxy (`proxy` by default) before deploying. Do not publish database/cache ports.
+- Create the external Docker network used by your Cloudflare Tunnel/reverse proxy (`proxy` by default) before deploying. Do not publish database/cache ports. The backend network allows outbound egress so the worker can call the configured AI provider.
 
 ## Deploy
 
