@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow, noarchive">
+  <meta name="theme-color" content="#10231f">
+  <meta name="description" content="Authenticated, read-only AIReadyAssessment runtime diagnostics.">
+  <title>Runtime diagnostics — AIReadyAssessment</title>
+  <link rel="stylesheet" href="/assets/site.css">
+  <link rel="stylesheet" href="/assets/ops.css">
+  <script defer src="/config.js"></script>
+  <script defer src="/assets/ops.js"></script>
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="/" aria-label="AIReadyAssessment home"><span class="brand-mark">A</span><span>AIReady<span class="brand-light">Assessment</span></span></a>
+    <a class="text-link" href="/">← Back to site</a>
+  </header>
+  <main class="ops-page wrap">
+    <section class="ops-heading">
+      <span class="eyebrow">Restricted operations</span>
+      <h1>Runtime diagnostics</h1>
+      <p>Connect to the Laravel MCP endpoint to inspect application health, database schema, failed jobs and assessment aggregates.</p>
+    </section>
+
+    <section class="ops-security" aria-label="Security notice">
+      <strong>Security notice</strong>
+      <p>Protect this page with a Cloudflare Access policy. The bearer token is entered by you, kept only in this page's memory, and never saved to local storage or sent to the website's own server. Use only on a trusted device. Available tools are allowlisted and read-only.</p>
+    </section>
+
+    <section class="ops-panel" aria-labelledby="connect-title">
+      <h2 id="connect-title">Connect to API</h2>
+      <form id="connect-form">
+        <label for="api-origin">API origin</label>
+        <input id="api-origin" name="api-origin" type="url" inputmode="url" autocomplete="url" required>
+        <label for="mcp-token">MCP bearer token</label>
+        <input id="mcp-token" name="mcp-token" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" required minlength="32" placeholder="Paste the token configured in Portainer">
+        <div class="ops-actions">
+          <button class="button button-primary" type="submit" id="connect-button">Connect &amp; inspect <span aria-hidden="true">→</span></button>
+          <button class="button button-secondary" type="button" id="disconnect-button" disabled>Disconnect</button>
+        </div>
+      </form>
+      <p id="connection-status" class="ops-status" role="status" aria-live="polite">Not connected. The API must be online and MCP_ENABLED must be true.</p>
+    </section>
+
+    <section class="ops-panel" aria-labelledby="tools-title">
+      <div class="ops-panel-heading">
+        <div><span class="eyebrow">Read-only MCP tools</span><h2 id="tools-title">Diagnostics</h2></div>
+        <button class="button button-secondary" id="refresh-button" type="button" disabled>Refresh tools</button>
+      </div>
+      <div id="tool-list" class="ops-tool-list">
+        <p class="ops-empty">Connect to load the available diagnostics tools.</p>
+      </div>
+    </section>
+    <p class="ops-footnote">This console intentionally does not expose arbitrary shell commands, Tinker, SQL queries or write operations. Results may contain operational metadata; disconnect when finished.</p>
+  </main>
+  <footer class="site-footer"><div class="wrap footer-inner"><a class="brand brand-footer" href="/"><span class="brand-mark">A</span><span>AIReadyAssessment</span></a><span>Operations console · read-only diagnostics</span></div></footer>
+</body>
+</html>
