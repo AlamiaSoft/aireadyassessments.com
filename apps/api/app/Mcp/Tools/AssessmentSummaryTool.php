@@ -9,6 +9,7 @@ use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Illuminate\Support\Facades\DB;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
+use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
@@ -17,7 +18,7 @@ use Laravel\Mcp\Server\Tool;
 #[Description('Returns aggregate assessment counts by status and recent processing totals. Never returns candidate identifiers, emails, documents, or report content.')]
 class AssessmentSummaryTool extends Tool
 {
-    public function handle(Request $request): Response
+    public function handle(Request $request): ResponseFactory
     {
         $byStatus = Assessment::query()
             ->select('status', DB::raw('COUNT(*) as aggregate'))
