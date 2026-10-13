@@ -13,8 +13,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 WORKDIR /var/www/html
 
-# Copy application source before Composer runs Laravel package-discovery scripts.
+# Copy application source and create writable Laravel cache path before Composer
+# runs the post-autoload-dump package-discovery script.
 COPY apps/api/ ./
+RUN mkdir -p bootstrap/cache
 RUN composer install --no-dev --prefer-dist --no-interaction --no-progress --optimize-autoloader \
     && mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs storage/app/private bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
