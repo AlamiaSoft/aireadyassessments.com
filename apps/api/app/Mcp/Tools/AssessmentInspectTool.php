@@ -8,6 +8,7 @@ use App\Models\Assessment;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\Request;
 use Laravel\Mcp\Response;
+use Laravel\Mcp\ResponseFactory;
 use Laravel\Mcp\Server\Attributes\Description;
 use Laravel\Mcp\Server\Attributes\Name;
 use Laravel\Mcp\Server\Tool;
@@ -17,7 +18,7 @@ use Illuminate\Validation\ValidationException;
 #[Description('Inspects one assessment lifecycle by UUID. Returns only status/timestamps/failure code/request ID; excludes candidate data, source documents, and report content.')]
 class AssessmentInspectTool extends Tool
 {
-    public function handle(Request $request): Response
+    public function handle(Request $request): ResponseFactory
     {
         $validated = $request->validate([
             'id' => ['required', 'uuid'],
