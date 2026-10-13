@@ -4,8 +4,8 @@ FROM php:8.3-cli-bookworm
 ENV COMPOSER_ALLOW_SUPERUSER=1
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    git unzip libpq-dev libzip-dev libxml2-dev libonig-dev poppler-utils \
-    && docker-php-ext-install pdo_pgsql zip dom mbstring pcntl \
+    git unzip libpq-dev libzip-dev libxml2-dev libonig-dev libicu-dev poppler-utils \
+    && docker-php-ext-install pdo_pgsql zip dom mbstring pcntl intl \
     && pecl install redis \
     && docker-php-ext-enable redis \
     && rm -rf /var/lib/apt/lists/*
