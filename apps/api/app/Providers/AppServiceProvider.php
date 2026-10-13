@@ -17,7 +17,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         RateLimiter::for('mcp', function (Request $request): Limit {
-            return Limit::perMinute(30)->by(hash('sha256', (string) $request->ip().'|'.(string) $request->bearerToken()));
+            return Limit::perMinute(30)->by((string) $request->ip());
         });
 
         RateLimiter::for('assessment-create', function (Request $request): Limit {
