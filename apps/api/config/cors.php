@@ -12,6 +12,7 @@ return [
         'Authorization',
         'Content-Type',
         'MCP-Protocol-Version',
+        'Mcp-Session-Id',
         'X-Assessment-Token',
         'X-Request-ID',
     ],
