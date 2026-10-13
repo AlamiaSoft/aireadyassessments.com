@@ -1,9 +1,10 @@
 # Portainer standalone Docker Compose stack.
-# Keep credentials in Portainer stack environment variables / a VPS-only env file.
-# Replace API_IMAGE with a published immutable image tag. Dockerfile/build pipeline is pending.
+# API image is built and published by .github/workflows/publish-api-image.yml.
+# Keep passwords in Portainer stack environment variables; keep AI/API secrets in
+# /opt/aireadyassessment/.env on the Docker host (chmod 600).
 services:
   api:
-    image: ${API_IMAGE:?Set API_IMAGE to the published app image}
+    image: \${API_IMAGE:?Set API_IMAGE to ghcr.io/alamiasoft/aireadyassessment-api:latest}
     restart: unless-stopped
     env_file:
       - /opt/aireadyassessment/.env
@@ -14,16 +15,18 @@ services:
       DB_CONNECTION: pgsql
       DB_HOST: postgres
       DB_PORT: "5432"
-      DB_DATABASE: ${POSTGRES_DB:-aireadyassessment}
-      DB_USERNAME: ${POSTGRES_USER:-aireadyassessment}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      DB_DATABASE: \${POSTGRES_DB:-aireadyassessment}
+      DB_USERNAME: \${POSTGRES_USER:-aireadyassessment}
+      DB_PASSWORD: \${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in Portainer}
       CACHE_STORE: redis
       SESSION_DRIVER: redis
       QUEUE_CONNECTION: redis
+      REDIS_CLIENT: phpredis
       REDIS_HOST: redis
       REDIS_PORT: "6379"
-      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD}
+      REDIS_PASSWORD: \${REDIS_PASSWORD:?Set REDIS_PASSWORD in Portainer}
       FILESYSTEM_DISK: local
+      SESSION_SECURE_COOKIE: "true"
     volumes:
       - app_storage:/var/www/html/storage
       - app_bootstrap_cache:/var/www/html/bootstrap/cache
@@ -33,7 +36,7 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - internal
+      - backend
       - proxy
     expose:
       - "8000"
@@ -46,7 +49,7 @@ services:
       start_period: 30s
 
   worker:
-    image: ${API_IMAGE:?Set API_IMAGE to the published app image}
+    image: \${API_IMAGE:?Set API_IMAGE to ghcr.io/alamiasoft/aireadyassessment-api:latest}
     restart: unless-stopped
     env_file:
       - /opt/aireadyassessment/.env
@@ -57,15 +60,16 @@ services:
       DB_CONNECTION: pgsql
       DB_HOST: postgres
       DB_PORT: "5432"
-      DB_DATABASE: ${POSTGRES_DB:-aireadyassessment}
-      DB_USERNAME: ${POSTGRES_USER:-aireadyassessment}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      DB_DATABASE: \${POSTGRES_DB:-aireadyassessment}
+      DB_USERNAME: \${POSTGRES_USER:-aireadyassessment}
+      DB_PASSWORD: \${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in Portainer}
       CACHE_STORE: redis
       SESSION_DRIVER: redis
       QUEUE_CONNECTION: redis
+      REDIS_CLIENT: phpredis
       REDIS_HOST: redis
       REDIS_PORT: "6379"
-      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD}
+      REDIS_PASSWORD: \${REDIS_PASSWORD:?Set REDIS_PASSWORD in Portainer}
       FILESYSTEM_DISK: local
     volumes:
       - app_storage:/var/www/html/storage
@@ -76,11 +80,11 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - internal
+      - backend
     command: ["php", "artisan", "queue:work", "redis", "--sleep=3", "--tries=3", "--timeout=120", "--max-time=3600"]
 
   scheduler:
-    image: ${API_IMAGE:?Set API_IMAGE to the published app image}
+    image: \${API_IMAGE:?Set API_IMAGE to ghcr.io/alamiasoft/aireadyassessment-api:latest}
     restart: unless-stopped
     env_file:
       - /opt/aireadyassessment/.env
@@ -91,15 +95,16 @@ services:
       DB_CONNECTION: pgsql
       DB_HOST: postgres
       DB_PORT: "5432"
-      DB_DATABASE: ${POSTGRES_DB:-aireadyassessment}
-      DB_USERNAME: ${POSTGRES_USER:-aireadyassessment}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      DB_DATABASE: \${POSTGRES_DB:-aireadyassessment}
+      DB_USERNAME: \${POSTGRES_USER:-aireadyassessment}
+      DB_PASSWORD: \${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in Portainer}
       CACHE_STORE: redis
       SESSION_DRIVER: redis
       QUEUE_CONNECTION: redis
+      REDIS_CLIENT: phpredis
       REDIS_HOST: redis
       REDIS_PORT: "6379"
-      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD}
+      REDIS_PASSWORD: \${REDIS_PASSWORD:?Set REDIS_PASSWORD in Portainer}
       FILESYSTEM_DISK: local
     volumes:
       - app_storage:/var/www/html/storage
@@ -110,22 +115,22 @@ services:
       redis:
         condition: service_healthy
     networks:
-      - internal
+      - backend
     command: ["sh", "-lc", "while :; do php artisan schedule:run --no-interaction; sleep 60; done"]
 
   postgres:
     image: postgres:17-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB: ${POSTGRES_DB:-aireadyassessment}
-      POSTGRES_USER: ${POSTGRES_USER:-aireadyassessment}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD}
+      POSTGRES_DB: \${POSTGRES_DB:-aireadyassessment}
+      POSTGRES_USER: \${POSTGRES_USER:-aireadyassessment}
+      POSTGRES_PASSWORD: \${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in Portainer}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
-      - internal
+      - backend
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aireadyassessment} -d ${POSTGRES_DB:-aireadyassessment}"]
+      test: ["CMD-SHELL", "pg_isready -U \${POSTGRES_USER:-aireadyassessment} -d \${POSTGRES_DB:-aireadyassessment}"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -133,15 +138,15 @@ services:
   redis:
     image: redis:7-alpine
     restart: unless-stopped
-    command: ["sh", "-lc", "redis-server --appendonly yes --requirepass \"$${REDIS_PASSWORD}\""]
+    command: ["sh", "-lc", "redis-server --appendonly yes --requirepass \"$$REDIS_PASSWORD\""]
     environment:
-      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD}
+      REDIS_PASSWORD: \${REDIS_PASSWORD:?Set REDIS_PASSWORD in Portainer}
     volumes:
       - redis_data:/data
     networks:
-      - internal
+      - backend
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli -a \"$${REDIS_PASSWORD}\" ping | grep -q PONG"]
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" ping | grep -q PONG"]
       interval: 10s
       timeout: 5s
       retries: 10
@@ -153,10 +158,11 @@ volumes:
   app_bootstrap_cache:
 
 networks:
-  internal:
+  # Non-internal so app/queue can make outbound requests to the configured AI APIs.
+  # No ports are published for PostgreSQL or Redis.
+  backend:
     driver: bridge
-    internal: true
   proxy:
-    # Create this network in Portainer first; attach tunnel/reverse-proxy to it.
+    # Create this network in Portainer first; attach the Cloudflare Tunnel/reverse proxy.
     external: true
-    name: ${PROXY_NETWORK:-proxy}
+    name: \${PROXY_NETWORK:-proxy}
