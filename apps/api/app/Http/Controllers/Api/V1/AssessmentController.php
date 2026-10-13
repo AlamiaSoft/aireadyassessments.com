@@ -9,6 +9,7 @@ use App\Services\EventRecorder;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundationResponse;
 use Throwable;
@@ -79,7 +80,11 @@ class AssessmentController extends Controller
             Storage::disk($diskName)->deleteDirectory('assessments/'.$assessmentId);
             Assessment::query()->whereKey($assessmentId)->delete();
 
-            report($exception);
+            Log::error('assessment.dispatch.failed', [
+                'assessment_id' => $assessmentId,
+                'request_id' => $requestId,
+                'exception_class' => $exception::class,
+            ]);
 
             return response()->json([
                 'message' => 'We could not queue this assessment. No payment was taken. Please retry shortly.',
