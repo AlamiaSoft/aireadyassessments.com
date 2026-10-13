@@ -2,21 +2,24 @@
 
 This stack is designed for a Portainer instance managing the **local Docker engine on the Oracle VPS**. Portainer builds the Laravel image from the checked-out Git repository; no GHCR package, image-publishing workflow, or registry login is required.
 
-The stack runs the API, a one-shot setup/migration service, a queue worker, a scheduler, PostgreSQL, and Redis. The public website remains on Cloudflare Pages.
+The stack runs the API, a one-shot setup/migration service, a queue worker, a scheduler, PostgreSQL, and Redis. The public website remains on Cloudflare Pages. This new Laravel stack uses its own PostgreSQL, Redis and storage volumes; do not reuse the older Node/SQLite application's `lead_data` volume or database.
 
 ## One-time preparation
 
 - Ensure Portainer's endpoint is the local Docker environment on this same VPS. Portainer documents a limitation with Compose `build:` for remote Docker endpoints; if this stack targets a remote Agent endpoint, use a host-side build script instead of assuming Portainer can build remotely.
-- Create the external Docker network shared with your Cloudflare Tunnel/reverse proxy. It defaults to `proxy`; change `PROXY_NETWORK` if your existing network has another name.
+- Create the external Docker network shared with your Cloudflare Tunnel/reverse proxy. It defaults to `alamia-network`, matching the shared network name you recall using. Confirm that this exact network exists on the target Docker endpoint and is attached to your Cloudflare Tunnel/reverse-proxy container; otherwise set `PROXY_NETWORK` to the real network name in Portainer.
 - Copy `.env.production.example` locally, replace all placeholders, and upload the completed file in Portainer's **Stack → Environment variables → Load variables from .env file** panel. Do not commit the filled file.
 - Set a stable, unique `APP_KEY`; use a strong PostgreSQL password and Redis password; set the actual HTTPS API and frontend URLs; and provide the initial admin name, email and a unique password of at least 16 characters.
 - Add the primary and fallback AI endpoint, model and API keys. Keep real credentials only in Portainer's environment settings.
 
 ## Deploy
 
+> **Network preflight:** Before deployment, verify `alamia-network` exists on the local Docker endpoint and is shared with the Cloudflare Tunnel/reverse proxy. Compose declares this network as external and will fail to start if it does not exist. This repository does not create it automatically.
+
+
 1. In Portainer choose **Stacks → Add stack → Repository**.
 2. Repository: `https://github.com/AlamiaSoft/aireadyassessments.com.git`; branch: `main`; Compose path: `deploy/portainer/stack.yml`.
-3. Upload the completed environment file in the stack's environment-variable panel. Confirm `API_IMAGE=aireadyassessment-api:local` and the existing proxy-network name.
+3. Upload the completed environment file in the stack's environment-variable panel. Confirm `API_IMAGE=aireadyassessment-api:local` and `PROXY_NETWORK=alamia-network` (or the exact existing network name discovered in Portainer).
 4. Deploy the stack. Portainer/Compose builds the image locally from `apps/api/Dockerfile`; the `setup` service waits for PostgreSQL, runs pending migrations, and then provisions the configured admin before API/worker/scheduler start.
 5. Inspect the `setup` container logs. If migrations or admin provisioning fail, the dependent application services will not start; fix the error and redeploy.
 6. Verify the API health endpoint through the private origin before routing public traffic.
