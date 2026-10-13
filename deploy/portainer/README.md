@@ -1,29 +1,33 @@
 # Portainer deployment (Oracle VPS)
 
-This stack runs the Laravel API, one queue worker, one Laravel scheduler, PostgreSQL, and Redis. The public marketing website remains on Cloudflare Pages.
+This stack is designed for a Portainer instance managing the **local Docker engine on the Oracle VPS**. Portainer builds the Laravel image from the checked-out Git repository; no GHCR package, image-publishing workflow, or registry login is required.
 
-## Prerequisites
+The stack runs the API, a one-shot setup/migration service, a queue worker, a scheduler, PostgreSQL, and Redis. The public website remains on Cloudflare Pages.
 
-- The image is published to GHCR by `.github/workflows/publish-api-image.yml` after API/Dockerfile changes on `main`. The workflow builds both `linux/amd64` and `linux/arm64`. Use `ghcr.io/alamiasoft/aireadyassessment-api:latest` initially; for repeatable rollbacks, use the immutable `sha-<commit>` tag from the workflow run. Check the workflow run is green before pulling the image.
-- Copy `deploy/portainer/.env.production.example` locally, fill in real production values, and upload that completed file in Portainer's Stack → Environment variables → Load variables from .env file. Do not commit the completed file. This also supplies the variables used for Compose interpolation and the stack's `stack.env` injection.
-- Replace the sample `POSTGRES_PASSWORD`, `REDIS_PASSWORD`, `APP_KEY`, AI API keys, URLs, and initial-admin fields before uploading. Treat the uploaded environment file as a secret.
-- `APP_KEY` must be generated once for this environment and kept stable. Generate with `php artisan key:generate --show` using the project image.
-- Set `APP_URL`, `FRONTEND_URL`, and `CORS_ALLOWED_ORIGINS` to the real HTTPS API and Cloudflare Pages origins.
-- Create the external Docker network used by your Cloudflare Tunnel/reverse proxy (`proxy` by default) before deploying. Do not publish database/cache ports. The backend network allows outbound egress so the worker can call the configured AI provider.
+## One-time preparation
+
+- Ensure Portainer's endpoint is the local Docker environment on this same VPS. Portainer documents a limitation with Compose `build:` for remote Docker endpoints; if this stack targets a remote Agent endpoint, use a host-side build script instead of assuming Portainer can build remotely.
+- Create the external Docker network shared with your Cloudflare Tunnel/reverse proxy. It defaults to `proxy`; change `PROXY_NETWORK` if your existing network has another name.
+- Copy `.env.production.example` locally, replace all placeholders, and upload the completed file in Portainer's **Stack → Environment variables → Load variables from .env file** panel. Do not commit the filled file.
+- Set a stable, unique `APP_KEY`; use a strong PostgreSQL password and Redis password; set the actual HTTPS API and frontend URLs; and provide the initial admin name, email and a unique password of at least 16 characters.
+- Add the primary and fallback AI endpoint, model and API keys. Keep real credentials only in Portainer's environment settings.
 
 ## Deploy
 
-1. Wait for [Publish API image](../../actions/workflows/publish-api-image.yml) to pass. In Portainer, configure the private GitHub repository credentials and the GHCR registry. For a private GHCR package, register `ghcr.io` using your GitHub login and a token with `read:packages` scope; never put that token in YAML.
-2. Portainer → Stacks → Add stack → Repository (preferred) or Web editor. For Git mode select `https://github.com/AlamiaSoft/aireadyassessments.com.git`, branch `main`, Compose path `deploy/portainer/stack.yml`.
-3. In the stack's Environment variables panel, choose **Load variables from .env file** and upload the completed template. Confirm `API_IMAGE=ghcr.io/alamiasoft/aireadyassessment-api:latest` and the Docker proxy network name are correct.
-4. Deploy the stack. The Compose file uses Portainer's generated `stack.env` for service environment injection; no absolute host `.env` path is required.
-5. After all services are healthy, run `php artisan migrate --force` once in the API container. Seed admin only after setting secure `INITIAL_ADMIN_EMAIL` and `INITIAL_ADMIN_PASSWORD`.
-6. Confirm `/up` through the private origin before routing public traffic.
+1. In Portainer choose **Stacks → Add stack → Repository**.
+2. Repository: `https://github.com/AlamiaSoft/aireadyassessments.com.git`; branch: `main`; Compose path: `deploy/portainer/stack.yml`.
+3. Upload the completed environment file in the stack's environment-variable panel. Confirm `API_IMAGE=aireadyassessment-api:local` and the existing proxy-network name.
+4. Deploy the stack. Portainer/Compose builds the image locally from `apps/api/Dockerfile`; the `setup` service waits for PostgreSQL, runs pending migrations, and then provisions the configured admin before API/worker/scheduler start.
+5. Inspect the `setup` container logs. If migrations or admin provisioning fail, the dependent application services will not start; fix the error and redeploy.
+6. Verify the API health endpoint through the private origin before routing public traffic.
 
-## Before real CVs
+## Database and admin safety
 
-Verify production image build, PHP extensions including PostgreSQL and Redis clients, private document storage, scheduled document-retention cleanup, email delivery if enabled, AI provider credentials and fallback, logging/alerts, database backups, and a successful restore test. Do not accept real CVs until those are checked.
+- The setup service runs `php artisan migrate --force`. Laravel tracks completed migrations, so already-applied migrations are not re-run and the command does not reset, truncate, or recreate the database.
+- New pending migration code still executes. Review schema changes and keep database backups; a deliberately destructive migration can still be destructive.
+- `DatabaseSeeder` uses an idempotent upsert for the configured admin account. It creates the account if missing and updates only that email's name, password hash and admin flag on redeployment. It does not truncate tables or re-seed other application data. Keep the configured credentials stable; changing the Portainer admin password and redeploying intentionally rotates that account's password.
+- Do not put unrelated demo or fixture seeders in the production `DatabaseSeeder`.
 
-## Notes
+## Before accepting real CVs
 
-The API uses Laravel's database queue/cache/session by default for local development. This stack overrides them to Redis. Portainer's generated `stack.env` is intentionally referenced by API, worker, and scheduler services so uploaded variables are injected into each one. Confirm the image contains a supported Redis client extension or package. `php artisan serve` is used here as a bootstrap convenience, not an ideal high-throughput production HTTP server; replace with a hardened Nginx/PHP-FPM or supported Laravel runtime before public production launch.
+Verify private document storage and retention cleanup, AI provider fallback and budget limits, monitoring/logging, automated database backups and a successful restore test. The current HTTP process uses Laravel's built-in server for initial smoke testing; replace it with a hardened production HTTP runtime before significant public traffic.
