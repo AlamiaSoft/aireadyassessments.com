@@ -43,7 +43,7 @@ jobs:
       - name: Validate Portainer Compose configuration
         shell: bash
         env:
-          API_IMAGE: ghcr.io/alamiasoft/aireadyassessment-api:ci
+          API_IMAGE: aireadyassessment-api:ci
           POSTGRES_PASSWORD: ci-postgres-password
           REDIS_PASSWORD: ci-redis-password
           PROXY_NETWORK: proxy
@@ -53,6 +53,9 @@ jobs:
           chmod 600 deploy/portainer/stack.env
           docker compose -f deploy/portainer/stack.yml config --quiet
           rm -f deploy/portainer/stack.env
+
+      - name: Build API image without publishing
+        run: docker build -f apps/api/Dockerfile -t aireadyassessment-api:ci .
 
       - name: Check whitespace errors
         run: git diff --check
