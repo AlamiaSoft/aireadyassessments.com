@@ -4,7 +4,7 @@ This stack runs the Laravel API, one queue worker, one Laravel scheduler, Postgr
 
 ## Prerequisites
 
-- The image is published to GHCR by `.github/workflows/publish-api-image.yml` after API/Dockerfile changes on `main`. Use `ghcr.io/alamiasoft/aireadyassessment-api:latest` initially; for repeatable rollbacks, use the immutable `sha-<commit>` tag from the workflow run.
+- The image is published to GHCR by `.github/workflows/publish-api-image.yml` after API/Dockerfile changes on `main`. The workflow builds both `linux/amd64` and `linux/arm64`. Use `ghcr.io/alamiasoft/aireadyassessment-api:latest` initially; for repeatable rollbacks, use the immutable `sha-<commit>` tag from the workflow run. Check the workflow run is green before pulling the image.
 - Create `/opt/aireadyassessment/.env` on the VPS with production app/provider settings. Do not commit it. Set strict file permissions (`chmod 600`).
 - Create strong `POSTGRES_PASSWORD` and `REDIS_PASSWORD` values in Portainer stack environment variables. Keep them out of tracked YAML.
 - `APP_KEY` must be generated once for this environment and kept stable. Generate with `php artisan key:generate --show` using the project image.
@@ -13,11 +13,12 @@ This stack runs the Laravel API, one queue worker, one Laravel scheduler, Postgr
 
 ## Deploy
 
-1. Portainer → Stacks → Add stack → Web editor; paste `stack.yml`.
-2. Set `API_IMAGE`, `POSTGRES_PASSWORD`, and `REDIS_PASSWORD` in stack environment variables.
-3. Put all Laravel variables in `/opt/aireadyassessment/.env` on the Docker host. Ensure Portainer/Docker can read this file. If your Portainer setup cannot use host `env_file` paths, put the non-secret settings in the stack UI and secrets in its environment-variable section instead.
-4. Deploy. Run `php artisan migrate --force` once in the API container. Seed admin only after setting secure `INITIAL_ADMIN_EMAIL` and `INITIAL_ADMIN_PASSWORD`.
-5. Confirm `/up` through the private origin before routing public traffic.
+1. Wait for [Publish API image](../../actions/workflows/publish-api-image.yml) to pass. In Portainer, configure the private GitHub repository credentials and the GHCR registry. For a private GHCR package, register `ghcr.io` using your GitHub login and a token with `read:packages` scope; never put that token in YAML.
+2. Portainer → Stacks → Add stack → Repository (preferred) or Web editor. For Git mode select `https://github.com/AlamiaSoft/aireadyassessments.com.git`, branch `main`, Compose path `deploy/portainer/stack.yml`.
+3. Set `API_IMAGE=ghcr.io/alamiasoft/aireadyassessment-api:latest`, `POSTGRES_PASSWORD`, and `REDIS_PASSWORD` in stack environment variables.
+4. Put all Laravel variables in `/opt/aireadyassessment/.env` on the Docker host. Ensure Portainer/Docker can read this file. If your Portainer setup cannot use host `env_file` paths, put the non-secret settings in the stack UI and secrets in its environment-variable section instead.
+5. Deploy. Run `php artisan migrate --force` once in the API container. Seed admin only after setting secure `INITIAL_ADMIN_EMAIL` and `INITIAL_ADMIN_PASSWORD`.
+6. Confirm `/up` through the private origin before routing public traffic.
 
 ## Before real CVs
 
