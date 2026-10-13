@@ -22,7 +22,7 @@ services:
       - proxy
     expose:
       - "8000"
-    command: ["sh", "-lc", "php artisan config:cache && exec php artisan serve --host=0.0.0.0 --port=8000"]
+    command: ["sh", "-lc", "frankenphp php-cli artisan config:cache && frankenphp php-cli artisan view:cache && frankenphp php-cli artisan event:cache && exec frankenphp run --config /etc/caddy/Caddyfile --adapter caddyfile"]
     healthcheck:
       test: ["CMD-SHELL", "php -r '$$s=@fsockopen(\"127.0.0.1\",8000); exit($$s?0:1);'"]
       interval: 30s
@@ -46,8 +46,8 @@ services:
       - |
         set -eu
         test -n "$$APP_KEY" || { echo "APP_KEY is required; set it in Portainer."; exit 1; }
-        php artisan migrate --force
-        php artisan db:seed --force
+        frankenphp php-cli artisan migrate --force
+        frankenphp php-cli artisan db:seed --force
 
   worker:
     image: ${API_IMAGE:-aireadyassessment-api:local}
@@ -63,7 +63,7 @@ services:
       - app_storage:/var/www/html/storage
     networks:
       - backend
-    command: ["php", "artisan", "queue:work", "redis", "--sleep=3", "--tries=3", "--timeout=120", "--max-time=3600"]
+    command: ["frankenphp", "php-cli", "artisan", "queue:work", "redis", "--sleep=3", "--tries=3", "--timeout=120", "--max-time=3600"]
 
   scheduler:
     image: ${API_IMAGE:-aireadyassessment-api:local}
@@ -79,7 +79,7 @@ services:
       - app_storage:/var/www/html/storage
     networks:
       - backend
-    command: ["sh", "-lc", "while :; do php artisan schedule:run --no-interaction; sleep 60; done"]
+    command: ["sh", "-lc", "while :; do frankenphp php-cli artisan schedule:run --no-interaction; sleep 60; done"]
 
   postgres:
     image: postgres:17-alpine
