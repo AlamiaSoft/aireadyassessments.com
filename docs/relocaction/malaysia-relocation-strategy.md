@@ -238,3 +238,35 @@ Record the source, date checked, exact question answered, and any uncertainty in
 ---
 
 **Working conclusion:** The most robust strategy is a staged move with legal status first, confirmed remote income as the initial financial anchor if agreed, parallel employer outreach, and productized consulting as an additional route—not as a substitute for work authorization or a cash reserve. The city, pass route, budget, and remote-work terms are the next facts needed to make this plan specific.
+
+
+## 8. Potential technical support for Ume's research — opportunity and safeguards
+
+**Status: possible opportunity only; not approved income and not yet a confirmed grant expense.**
+
+Ali and Ume anticipate that some of Ume's future research projects may need technical implementation support, such as software development, app/prototype development, AR/VR setup, configuration, deployment, data workflows, or technical troubleshooting. Ume would prefer to work with Ali rather than an unfamiliar technical provider. If properly authorized and budgeted, this could create a small, evidence-based source of technical-services income for Ali while helping Ume execute research deliverables.
+
+Do not assume that every research project will need these services, that Ume can choose a supplier unilaterally, or that the university/grant will reimburse the cost. The current YTL Cement grant summary identifies RM30,000 in total project funding and describes allocations including RM4,000 toward a required publication, fieldwork travel, and respondent tokens. It does **not** establish that software/AR development costs are approved, that an external contractor budget exists, or that payments to a student's spouse are permitted.
+
+### Before any paid work is accepted
+
+1. **Confirm budget eligibility in writing.** Ask Dr. Lim and the relevant UKM/LESTARI grants or finance administrator whether technical development, software, equipment, hosting, AR/VR configuration, or external consultancy is an eligible cost under this specific grant and approved budget.
+2. **Disclose the relationship.** Make clear that Ali is Ume's spouse. Ask whether the university/funder allows a related-party supplier and whether a conflict-of-interest declaration, procurement review, competing quotations, or independent approval is required.
+3. **Get approval before work starts.** Do not rely on a verbal assurance that an expense will probably be reimbursed. Obtain written approval for scope, amount, procurement method, vendor eligibility, tax/invoice requirements, payment route, and evidence needed for reimbursement.
+4. **Separate project funds from household funds.** Grant money is restricted project funding, not personal income. Ume should not pay Ali from the grant or promise reimbursement unless the responsible institution confirms the mechanism and approves the expense.
+5. **Define the work professionally.** Use a short statement of work with deliverables, milestones, acceptance criteria, price, support limits, ownership/licensing, data handling, and change-control rules. Keep version history, timesheets where required, test evidence, invoices, and proof of delivery.
+6. **Protect research integrity.** Distinguish technical implementation from research design, data collection, analysis, interpretation, and writing. Follow UKM/funder rules on acknowledgements, contributor statements, authorship, intellectual property, ethics approval, and use of participant data. Do not represent technical work as research authorship automatically; determine credit based on actual contribution and applicable policy.
+7. **Check Ali's legal ability to provide the service.** Confirm immigration/work authorization, business/invoicing requirements, and Malaysian/Pakistani tax implications before accepting or delivering paid services from Malaysia. A remote client, overseas payment, or university reimbursement does not automatically remove these requirements.
+
+### Practical path
+
+- First, help Ume identify the technical work packages in the AR project: user needs, prototype requirements, AR platform/device constraints, spatial/safety-zone data, deployment environment, evaluation instrumentation, and maintenance.
+- Separate work Ume can do herself, work the university/project team can provide, work requiring an approved external specialist, and work that is out of scope.
+- Prepare a neutral technical estimate only after requirements are understood. Do not shape the research design to create paid work for Ali or assume the project must use him.
+- If the project does not have an approved supplier budget, treat Ali's contribution as unpaid informal advice only if permitted and agreed, or leave implementation to the project team. Do not count unpaid assistance as household income.
+- For future independent research projects, repeat the approval and conflict checks separately; approval under one grant does not authorize expenditure under another.
+
+### Financial-planning treatment
+
+Until the grant administrator confirms eligibility and approval in writing, record this opportunity as **potential / unconfirmed**, with **RM0 included in the household base-case income**. If approved, count only the agreed fee net of expenses, taxes, payment delays, and any required procurement or reporting costs. Do not rely on reimbursement to fund work upfront unless cash flow and written terms make that safe.
+
