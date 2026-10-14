@@ -5,6 +5,36 @@
 **Target move:** January–February 2027 (provisional)  
 **Purpose:** Build a safe, legally compliant settlement plan and a realistic income strategy for Ali and Ume Kulsoom.
 
+
+## 0. Confirmed research and intake facts (updated 14 October 2026)
+
+This section supersedes earlier assumptions in this working plan where they conflict with the professor/student correspondence summarized by Ume.
+
+### University and registration
+- **Institution:** Universiti Kebangsaan Malaysia (UKM), specifically LESTARI.
+- **Programme:** Master of Science (Research Mode), with a research focus on climatic hazards.
+- **Supervisor:** Dr. Lim Chen Kim.
+- **Formal registration/intake:** Semester 2, expected February/March 2027. Ume previously considered deferral because of professional notice periods and visa processing; the current correspondence indicates she is proceeding toward this intake under Dr. Lim.
+- **Interim work:** Ume has agreed to contribute virtually to the research project before formal registration. This should not be treated as proof of student status, a student pass, permission to reside in Malaysia, or permission to undertake paid work.
+- **Move timing:** January–February 2027 remains a provisional household target, but must be reconciled with the university's confirmed registration dates and immigration requirements. The earlier idea of a November intake/online classes is not the current working assumption.
+
+### Research project and funding
+- **Project title:** *Augmented Reality Enabled Risk and Safety Visualisation for Sustainable Management of a Limestone Karst Cave: A Case Study of Gua Tempurung, Lembah Kinta*.
+- **Funder:** YTL Cement / Associated Pan Malaysia Cement Sdn. Bhd.
+- **Grant:** RM30,000 for a 12-month project, expected to start in November 2026, according to the correspondence summary.
+- **Research scope:** in-situ augmented-reality risk communication beyond static signage; spatial safety-zone analysis; an AR prototype; and evaluation of tourist/community situational awareness and responsible tourism management.
+- **Budget items described:** RM4,000 allocated toward a required research publication; fieldwork travel to Gua Tempurung; and tokens of appreciation for survey respondents.
+- **No research-assistant salary allowance has been identified.** The grant must therefore not be counted as Ume's or Ali's household income unless the university/supervisor confirms a separate stipend or paid appointment in writing.
+- **Current status:** Ume reports that she has reviewed the project proposal/logistics and accepted the collaboration. Immediate next steps are to review the location details and case-study dossier with Dr. Lim and clarify the initial workplan, deliverables, supervision, and any formal appointment or funding terms.
+
+### What this changes in the relocation plan
+1. Treat the project as a valuable research and professional opportunity, **not as a salary or guaranteed source of living costs**.
+2. Confirm with UKM/LESTARI what Ume may do before registration, what formal status applies during this period, whether any funding or appointment paperwork exists, and the exact physical-arrival deadline.
+3. Confirm the exact campus/city and likely place of study/work before estimating housing, transport, and household costs. Gua Tempurung is a case-study/fieldwork location; it should not be assumed to be the household's residential location.
+4. Reassess whether a January–February move is necessary or financially sensible based on registration, immigration processing, fieldwork dates, and the household's confirmed income/runway.
+5. Keep Ali's Malaysian residence and work authorization as a separate decision track. Ume's research collaboration or future student status does not automatically establish Ali's right to reside or work, and remote work or paid local consulting must be checked against the actual immigration and tax position.
+
+
 > This is a decision framework, not immigration, legal, tax, or financial advice. Malaysian rules and university procedures must be confirmed with official sources and the university before commitments are made. City, campus, pass type, and available budget are not yet specified, so this plan deliberately avoids pretending that one cost estimate or visa pathway fits all cases.
 
 ## 1. Outcomes and operating principles
@@ -134,14 +164,14 @@ Before booking:
 ## 3. Timeline and checkpoints
 
 ### October 2026 — verify the foundations
-- Collect the university's written answers on online participation, physical arrival, fees, pass process, insurance, and dependent eligibility.
+- Obtain written confirmation from UKM/LESTARI of the February/March 2027 registration timeline, pre-registration virtual research arrangements, physical arrival requirements, fees, pass process, insurance, and dependent eligibility.
 - Establish Ali's likely accompanying-pass route and obtain a written work-authorization answer for each contemplated income type.
 - Have the conversation with Shoaib about remote work from Malaysia and record the agreed scope and payment terms.
 - Start the household budget and list available liquid funds, expected income, obligations, and one-off relocation costs.
 - Prepare CV, LinkedIn, portfolio, consulting offer drafts, and an employer/recruiter tracker.
 
-### November 2026 — use the intake as a validation period
-- Ume begins only in the format approved by the university; keep proof of any online-study arrangement.
+### November 2026 — begin the project's initial virtual phase
+- Ume begins only the pre-registration research activities that Dr. Lim/UKM has authorized; keep written confirmation of the arrangement. Do not describe this as formal enrolment or online classes unless the university confirms that status.
 - Verify the pass application status and expected timeline. Do not assume online classes mean immigration requirements can be deferred.
 - Conduct market discovery: speak with potential employers, recruiters, business owners, and relevant professional communities. Clearly distinguish exploratory conversations from paid engagements.
 - Test consulting positioning and pricing with small, clearly defined offers; do not promise local delivery until authorization is confirmed.
@@ -154,8 +184,8 @@ Before booking:
 - Secure the initial accommodation and arrival transport with fraud checks.
 - Prepare document backups, emergency contacts, payment redundancy, and a first-30-days checklist.
 
-### January–February 2027 — settle and stabilize
-- Complete required university and immigration steps within the stated deadlines.
+### January–March 2027 — settle and align with formal registration
+- Complete required immigration steps and align arrival with UKM's confirmed February/March 2027 registration and attendance requirements.
 - Use temporary housing first if the neighbourhood or commute has not been tested.
 - Track actual spending weekly for the first two months and compare it with the plan.
 - Protect the confirmed remote-work schedule while continuing a measured employment search.
