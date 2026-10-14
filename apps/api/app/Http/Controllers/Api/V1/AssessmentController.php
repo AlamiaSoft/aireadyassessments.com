@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Symfony\Component\HttpFoundationResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
 class AssessmentController extends Controller
