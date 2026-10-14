@@ -2,17 +2,17 @@
 
 declare(strict_types=1);
 
-namespace App\\Mcp\\Tools;
+namespace App\Mcp\Tools;
 
-use Illuminate\\Contracts\\JsonSchema\\JsonSchema;
-use Illuminate\\Routing\\Route as RoutingRoute;
-use Illuminate\\Support\\Facades\\Route;
-use Laravel\\Mcp\\Request;
-use Laravel\\Mcp\\Response;
-use Laravel\\Mcp\\ResponseFactory;
-use Laravel\\Mcp\\Server\\Attributes\\Description;
-use Laravel\\Mcp\\Server\\Attributes\\Name;
-use Laravel\\Mcp\\Server\\Tool;
+use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Illuminate\Routing\Route as RoutingRoute;
+use Illuminate\Support\Facades\Route;
+use Laravel\Mcp\Request;
+use Laravel\Mcp\Response;
+use Laravel\Mcp\ResponseFactory;
+use Laravel\Mcp\Server\Attributes\Description;
+use Laravel\Mcp\Server\Attributes\Name;
+use Laravel\Mcp\Server\Tool;
 use Throwable;
 
 #[Name('admin.login.diagnostics')]
@@ -73,9 +73,10 @@ class AdminLoginDiagnosticsTool extends Tool
             'fonts/filament/filament/inter/index.css',
         ] as $asset) {
             $path = public_path($asset);
+            $exists = is_file($path);
             $assets[$asset] = [
-                'exists' => is_file($path),
-                'bytes' => is_file($path) ? filesize($path) : null,
+                'exists' => $exists,
+                'bytes' => $exists ? filesize($path) : null,
             ];
         }
 
@@ -107,7 +108,7 @@ class AdminLoginDiagnosticsTool extends Tool
         ]);
     }
 
-    /** @return array<string, \\Illuminate\\JsonSchema\\Types\\Type> */
+    /** @return array<string, \Illuminate\JsonSchema\Types\Type> */
     public function schema(JsonSchema $schema): array
     {
         return [];
