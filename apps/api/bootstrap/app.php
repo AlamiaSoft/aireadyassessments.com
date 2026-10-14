@@ -21,6 +21,14 @@ return Application::configure(basePath: dirname(__DIR__))
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Cloudflare Tunnel terminates HTTPS before forwarding to FrankenPHP
+        // over HTTP. Trust only the forwarded scheme so Laravel generates HTTPS
+        // asset URLs without trusting client-supplied host or client-IP headers.
+        $middleware->trustProxies(
+            at: '*',
+            headers: Request::HEADER_X_FORWARDED_PROTO,
+        );
+
         $middleware->append(AssignRequestId::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
